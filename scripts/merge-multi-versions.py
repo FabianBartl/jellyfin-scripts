@@ -72,6 +72,8 @@ FILE_RENAME_PATTERN = {
 # every file of the same episode is identified by this regex
 # in my case for example: S01E22 or S1E3, but not S1-E2 or SE4
 COMMON_EPISODE_PATTERN = r"S\d+E\d+"
+# if you only have one episode, you can set this variable to None
+COMMON_EPISODE_PATTERN = None
 
 # to mark the audio and subtitle tracks with the correct languages, they need to be named according to "ISO 639 Set 3"
 # see: https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
@@ -143,11 +145,14 @@ for file in all_files[:]:
 
 
 # group all files by episode
-COMMON_EPISODE_PATTERN = r"S\d+E\d+"
-related_episodes = {}
-for file in renamed_files:
-    if len(common_match := re.findall(COMMON_EPISODE_PATTERN, file.stem)) > 0:
-        related_episodes.update({ common_match[0]: related_episodes.get(common_match[0], []) + [file] })
+if COMMON_EPISODE_PATTERN is not None:
+    related_episodes = {}
+    for file in renamed_files:
+        if len(common_match := re.findall(COMMON_EPISODE_PATTERN, file.stem)) > 0:
+            related_episodes.update({ common_match[0]: related_episodes.get(common_match[0], []) + [file] })
+else:
+    related_episodes = {"single_episode": renamed_files}
+
 pprint(related_episodes)
 
 
