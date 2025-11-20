@@ -1,17 +1,44 @@
-
-/*
-Not a script, but just for backup, here is the custom CSS of my Jellyfin server.
-Press Ctrl+Shift+R to fully reload the Jellyfin homepage.
-*/
-
 /* ---------- main theme ---------- */
 
-/* https://github.com/CTalvio/Ultrachromic?tab=readme-ov-file#customization-using-multiple-import-lines */
-@import url('https://cdn.jsdelivr.net/gh/CTalvio/Ultrachromic/presets/kaleidochromic_preset.css');
-@import url('https://cdn.jsdelivr.net/gh/CTalvio/Ultrachromic/progress/floating.css');
+/* https://github.com/lscambo13/ElegantFin */
+/*
+History:
+  used v25.05.03 until 2025-11-02
+*/
+
+@import url("https://cdn.jsdelivr.net/gh/lscambo13/ElegantFin@v25.10.27/Theme/ElegantFin-jellyfin-theme-build-latest-minified.css");
+
+:root {
+    --extraCardButtonsVisibility: block;
+    --cardHoverEffect: none;
+    --libraryLabelVisibility: none;
+}
+
+
+/* ---------- branding ---------- */
+
+:root {
+    --jellyfin-mark-branded: url("assets/img/icon-transparent.png");
+    --jellyfin-word-mark-light-branded: url("assets/img/banner-light.png");
+    --jellyfin-word-mark-dark-branded: url("assets/img/banner-dark.png");
+}
+
+.MuiListItemIcon-root > img.MuiBox-root {
+    /* content: var(--jellyfin-mark-branded) !important; */
+}
 
 
 /* ---------- little customizations ---------- */
+
+/* bring back the home button in ElegantFin theme */
+.headerHomeButton {
+    display: block !important;
+}
+
+/* give EditorsChoice plugin title a bit more space */
+h2.sectionTitle + .splide {
+    /* margin-top: 0.8em; */
+}
 
 /* hide ratings until you hover over them, to prevent biased movie selection behavior */
 .itemMiscInfo > .starRatingContainer,
@@ -23,7 +50,7 @@ Press Ctrl+Shift+R to fully reload the Jellyfin homepage.
 .itemMiscInfo:hover > .starRatingContainer,
 .nameContainer:hover + .itemMiscInfo > .mediaInfoCriticRating ,
 .itemMiscInfo:hover > .mediaInfoCriticRating {
-    filter: blur(0) contrast(1);
+    filter: unset;
 }
 
 /* hide rating, shown by the "Media Bar" plugin */
@@ -36,7 +63,7 @@ Press Ctrl+Shift+R to fully reload the Jellyfin homepage.
 #slides-container .rating-value:hover .imdb-logo + span,
 #slides-container .rating-value:hover .tomato-logo + span,
 #slides-container .rating-value:hover .critic-logo {
-    filter: blur(0) contrast(1);
+    filter: unset;
 }
 
 /* hide the "Upcoming" tab on tv-shows page */
@@ -50,44 +77,82 @@ Press Ctrl+Shift+R to fully reload the Jellyfin homepage.
     display: none !important;
 }
 
-/* some changes for the "Media Bar" plugin to fit the main them */
-/* https://github.com/MakD/Jellyfin-Media-Bar */
-#slides-container .play-button {
-    border-radius: 25px !important;
-}
-#slides-container .favorite-button,
-#slides-container .play-text {
-    display: none;
-}
-#slides-container .separator-icon {
-    color: white;
-}
-#slides-container .rating-value,
-#slides-container .runTime,
-#slides-container .date,
-#slides-container .genre {
-    font-family: "Plus Jakarta Sans", sans-serif !important;
-}
-/* fix readability of homepage content when scrolled over the media bar */
-.homeSectionsContainer {
-    backdrop-filter: blur(15px);
-}
-.skinHeader {
-    padding-bottom: 0.5em;
-}
-#slides-container .runTime {
-    flex-wrap: nowrap;
-}
-
-/* hide pre-roll libraries created for the "Cinema Mode" plugin */
+/* hide pre-roll libraries created for the "Cinema Mode" plugin
+   and hide the collection created for the "EditorsChoice" plugin */
 /* https://github.com/CherryFloors/jellyfin-plugin-cinemamode/issues/18 */
 :not(#mediaLibraryPage) [data-id="3862c9622408b2bb528d4603737113a4"], [data-itemid="3862c9622408b2bb528d4603737113a4"],
-:not(#mediaLibraryPage) [data-id="dc9531519b809a4d79d060d3056f3e1a"], [data-itemid="dc9531519b809a4d79d060d3056f3e1a"] {
+:not(#mediaLibraryPage) [data-id="dc9531519b809a4d79d060d3056f3e1a"], [data-itemid="dc9531519b809a4d79d060d3056f3e1a"],
+:not(#mediaLibraryPage) [data-id="8a0af09fa81c75e49e3ba95d044cc969"], [data-itemid="8a0af09fa81c75e49e3ba95d044cc969"] {
     display: none !important;
 }
 
-/* fix not enough space to display last login in user overview */
-.cardText-secondary {
-    height: 5em;
-    font-size: 70%;
+/* hide tvshow trailer collection for cinema mode plugin */
+[data-id="1e32dd43e450f5754c6ab2498b15f5ee"] {
+    display: none !important;
+}
+
+/* hide "Passwort vergessen" button on login screen */
+.btnForgotPassword {
+    display: none !important;
+}
+
+/*
+A fix to add original title back in elegant theme for jellyfin
+https://gist.github.com/SingularReza/d7ced4d80a21d21617f88be446d5b5db
+*/
+.nameContainer {
+    flex-direction: row;
+    align-items: baseline;
+    padding-bottom: 0.25em;
+    overflow: auto;
+    justify-content: center !important;
+}
+.detailImageContainer:has(.backdropCard,.squareCard)~.nameContainer h1:has(+ h3).parentName.focuscontainer-x {
+    display: none !important;
+}
+.subtitle {
+ padding-right: 0.5em;
+}
+@media only screen and (max-width: 450px) {
+.subtitle {
+ padding: 0.2 em !important;
+}
+.nameContainer {
+    flex-direction: column;
+    justify-content: center !important;
+    overflow: auto;
+}
+.nameContainer h1 {
+    padding: 0em !important;
+}
+.originalTitle {
+    padding: 0em !important;
+    border-left: 0em !important;
+}
+}
+h1:has(+ h3) {
+    display: none !important;
+}
+.detailLogo:not(.hide)~.detailPageWrapperContainer .nameContainer h1 {
+    display: block;
+    padding-top: .25em !important;
+    padding-bottom: .25em !important;
+    color: var(--dimTextColor) !important;
+    margin: .2em 0 .2em !important;
+    font-size: 100%;
+    font-weight: 600;
+    padding-right: 0.5em;
+}
+.originalTitle {
+    padding-left: 0.5em !important;
+    border-left: 1px solid;
+    widh: 100% !important;
+}
+.detailLogo.hide~.detailPageWrapperContainer .nameContainer h1 {
+    width: 100vw;
+    padding: 0em;
+}
+.detailLogo.hide~.detailPageWrapperContainer .nameContainer h1 + h4 {
+   padding-bottom: 0.5em;
+   border-left: none !important;
 }

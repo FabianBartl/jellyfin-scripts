@@ -7,6 +7,6 @@ input_dir="$1"
 for file in "$input_dir"/*; do
     if [ -f "$file" ]; then
         echo "Processing file: $file"
-        bash /root/slow-reencode-to-h265.sh "$file"     # absolute path (!) to the script 'slow-reencode-to-h265.sh'
+        bash /root/slow-reencode-to-h264-aac.sh "$file"     # absolute path (!) to the script 'slow-reencode-to-h264-aac.sh'
     fi
 done

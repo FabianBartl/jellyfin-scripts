@@ -4,6 +4,20 @@
 A collection of scripts that make my life easier when managing a considerably large Jellyfin library.
 
 
+### [slow-reencode-to-h264.sh](scripts/slow-reencode-to-h264.sh) & [slow-reencode-to-h264-aac.sh](scripts/slow-reencode-to-h264-aac.sh)
+
+Slowly re-encode high quality video files into H.264 format to reduce the file size while maintaining quality. The audio tracks are encoded into AAC using the Fraunhover [libfdk_aac](https://github.com/mstorsjo/fdk-aac.git) for a variable high quality factor instead of constant bitrate (like crf for audio). You need to [build](scripts/build-nonfree-ffmpeg-libfdkaac.sh) Ffmpeg with non-free packages and the libfdk_aac to use this. If necessary, the video is also de-interlaced.
+
+Modify [this script](scripts/batch_slow-reencode-to-h265.sh) to use it as a wrapper to process all files of a directory instead of a single file.
+
+
+### [slow-reencode-to-h265.sh](scripts/slow-reencode-to-h265.sh)
+
+Slowly re-encode high quality video files into HEVC/H.265 format to reduce the file size while maintaining quality. The audio tracks are not re-encoded as they do not affect the file size as much as the video. If necessary, the video is also de-interlaced.
+
+[This script](scripts/batch_slow-reencode-to-h265.sh) is a wrapper to process all files of a directory instead of a single file.
+
+
 ### [merge-multi-versions.py](scripts/merge-multi-versions.py)
 
 *Imagine you have many episoded of a tv show, but the subtitles are not embedded and instead of one video file with multiple audio tracks, there are multiple video files with one audio track each.*
@@ -35,13 +49,6 @@ The config comes after all the imports and each option is described. The order o
 You can add chapters to any video with the first script. And with the second, you can merges two videos into one while keeping the chapters with corrected timestamps.
 
 
-### [slow-reencode-to-h265.sh](scripts/slow-reencode-to-h265.sh)
-
-Slowly re-encode high quality video files into H.265 format to reduce the file size while maintaining quality. The audio tracks are not re-encoded as they do not affect the file size as much as the video. If necessary, the video is also de-interlaced.
-
-[This script](scripts/batch_slow-reencode-to-h265.sh) is a wrapper to process all files of a directory instead of a single file.
-
-
 ### [kps.py](scripts/kps.py)
 
 A small cli script to quickly and easily get a shell for any pod of any kubernetes container.
@@ -59,8 +66,4 @@ Not a script, but just for backup, here is the custom CSS of my Jellyfin server.
 *Open any youtube page in a desktop browser and store its html as "youtube.html" by pressing Ctrl+S.*
 
 This script will extract every youtube video from all html a-tags, stores their urls in the file links.txt and then downloads every video in best available quality using yt-dlp.
-
-
-
-
 

@@ -1,5 +1,5 @@
 """
-Credit: https://gist.github.com/cliss/53136b2c69526eeed561a5517b23cefa
+Forked from: https://gist.github.com/cliss/53136b2c69526eeed561a5517b23cefa
 
 ---
 
