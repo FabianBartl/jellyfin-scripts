@@ -24,7 +24,7 @@ How to use this script:
 - merge this output file with the extracted metadata file
 
 - write metadata back into the movie file with:
-    ffmpeg -i input.mkv -i chapters.FFMETADATAFILE -map 0 -c copy -map_metadata 1 -map_chapters 1 -codec copy out.mkv
+    ffmpeg -i input.mkv -i chapters.FFMETADATAFILE -map 0 -map_metadata 1 -c copy out.mkv
 """
 
 import re, sys

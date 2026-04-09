@@ -55,12 +55,12 @@ import re
 _mid_part = "disc"
 # _mid_part = "public"
 
-_last_part = "The Pacific"
-_base_path = r"S:\media\_" + _mid_part + "-media-backup\\series\\" + _last_part
-_jellyfin_base_path = "/mnt/media/_" + _mid_part + "-media-backup/series/" + _last_part
+# _last_part = "The Pacific"
+# _base_path = r"S:\media\_" + _mid_part + "-media-backup\\series\\" + _last_part
+# _jellyfin_base_path = "/mnt/media/_" + _mid_part + "-media-backup/series/" + _last_part
 
-# _base_path = r"S:\media\_" + _mid_part + r"-media-backup\movies"
-# _jellyfin_base_path = "/mnt/media/" + _mid_part +"-media-backup/movies"
+_base_path = r"S:\media\_" + _mid_part + r"-media-backup\movies"
+_jellyfin_base_path = "/mnt/media/" + _mid_part +"-media-backup/movies"
 
 
 _new_trailers_base_path = r"S:\tmp\trailers"

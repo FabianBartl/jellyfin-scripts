@@ -22,14 +22,6 @@ Last update: 2025-05-03
 """
 
 try:
-    import ttml2srt     # not as a package available
-except ImportError:
-    print("Please download ttml2srt.py from https://github.com/yuppity/ttml2srt")
-    ttml_to_srt_unsupported = input("Continue without automatic conversion of ttml to srt? [y/N] ").lower() == "y"
-    if not ttml_to_srt_unsupported:
-        import ttml2srt
-
-try:
     # pip install colorama
     from colorama import init as colorama_init
     from colorama import Fore, Back, Style
@@ -40,6 +32,7 @@ except ImportError:
 
 import re
 import os
+import sys
 from pathlib import Path
 from pprint import pprint
 from typing import Any, Callable, Iterable, Optional
@@ -48,16 +41,18 @@ from typing_extensions import Self
 """################### START OF USER CONFIG ###################"""
 
 # the folder where all the files are, note that the script does not expect nested input files
-INPUT_FOLDER: Path = Path(r"C:\Users\fabia\Downloads")
+# INPUT_FOLDER: Path = Path(r"C:\Users\fabia\Downloads\r")
+# INPUT_FOLDER: Path = Path(r"C:\Users\fabia\Downloads\sp\Staffel 3")
+INPUT_FOLDER: Path = Path(sys.argv[1])
 
 # this just renames the input files if needed, but it should normalize the series-episode marker, title and language marker
 # https://regex101.com/r/kloyKZ/2
 # 'The Rookie-100 Tage Rookie (S01_E14) (Englisch)-0851818866.mp4' -> 'The Rookie - 100 Tage Rookie S01E14 [ÖRR] [1080p] [LANG-Englisch].mp4'
 # 'The Rookie-100 Tage Rookie (S01_E14)-0851818866.mp4' -> 'The Rookie - 100 Tage Rookie S01E14 [ÖRR] [1080p] [LANG-].mp4'
-FILE_RENAME_PATTERN = {
-    "pattern": r"^(?P<series>[^\-]+)-(?P<title>[^\(]+) \(S(?P<season>\d+)_E(?P<episode>\d+)\)(?: \((?P<lang>[^)]+)\))?-\d+(?P<ext>\..+)$",
-    "repl": r"\g<series> - \g<title> S\g<season>E\g<episode>" + " [ÖRR] [1080p]" + r" [LANG-\g<lang>]\g<ext>",
-}
+# FILE_RENAME_PATTERN = {
+#     "pattern": r"^(?P<series>[^\-]+)-(?P<title>[^\(]+) \(S(?P<season>\d+)[^E]+E(?P<episode>\d+)\)(?: \((?P<lang>[^)]+)\))?-\d+(?P<ext>\..+)$",
+#     "repl": r"\g<series> - \g<title> S\g<season>E\g<episode>" + " [ÖRR] [1080p]" + r" [LANG-\g<lang>]\g<ext>",
+# }
 # you can skip renaming with this regex:
 FILE_RENAME_PATTERN = {
     "pattern": r"^(?P<filename>.+)$",
@@ -72,26 +67,31 @@ FILE_RENAME_PATTERN = {
 # every file of the same episode is identified by this regex
 # in my case for example: S01E22 or S1E3, but not S1-E2 or SE4
 COMMON_EPISODE_PATTERN = r"S\d+E\d+"
+# COMMON_EPISODE_PATTERN = r"\(\d{4}\)"
 # if you only have one episode, you can set this variable to None
-COMMON_EPISODE_PATTERN = None
+# COMMON_EPISODE_PATTERN = None
 
 # to mark the audio and subtitle tracks with the correct languages, they need to be named according to "ISO 639 Set 3"
 # see: https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
 # the language of a file is matched by this regex: https://regex101.com/r/CFxbag/1
 COMMON_LANGUAGE_PATTERN = r"\[LANG-([^\]]*)\]"
 # if you only have one language, you can set this variable to None
-COMMON_LANGUAGE_PATTERN = None
+# COMMON_LANGUAGE_PATTERN = None
 
 # the matched language will be replaced by their 3-letter code for setting the track language by this mapping:
-# in my case are the unmarked files in germann (deu) and the english (eng) ones marked with 'Englisch'
+# in my case are the unmarked files in german (deu) and the english (eng) ones marked with 'Englisch'
+# LANGUAGE_MAP = {
+    # "": "deu",
+    # "Englisch": "eng",
+# }
 LANGUAGE_MAP = {
-    "": "deu",
-    "Englisch": "eng",
+    "deu": "deu",
+    "eng": "eng",
 }
 # if COMMON_LANGUAGE_PATTERN is None, use this map and replace the 3-letter code by yours
-LANGUAGE_MAP = {
-    "": "deu",
-}
+# LANGUAGE_MAP = {
+    # "": "deu",
+# }
 
 # the 3-letter code or None of the audio and subtitle track that should be set to default if present
 # you should always set a default audio language
@@ -110,14 +110,14 @@ OUTPUT_RENAME_PATTERN = {
 }
 
 # should the ffmpeg command be executed or just shown?
-FFMPEG_EXECUTE = False
+FFMPEG_EXECUTE = True
 # the command or location of the ffmpeg binary
-FFMPEG_BIN = r"ffmpeg"
+FFMPEG_BIN = r"ffmpeg -nostdin"
 # append the -y option to the ffmpeg command?
 FFMPEG_YES = True
 
-# set this to True, if you are happy with your config 
-START_THE_SCRIPT = False
+# set this to True, if you are happy with your config
+START_THE_SCRIPT = True
 
 """################### END OF USER CONFIG ###################"""
 
@@ -177,9 +177,9 @@ pprint(related_episodes)
 
 # group all language files by file type
 supported_filetypes = {
-    "video": {"mp4", "mkv", "webm"},
-    "audio": {"mp3", "m4a", "weba"},
-    "subtitle": {"srt"},
+    "video": {"mp4", "mkv", "webm", "ts"},
+    "audio": {"mp4", "mp3", "m4a", "weba"},
+    "subtitle": {"srt", "vtt"},
 }
 for episode, languages in list(related_episodes.items()):
 
@@ -197,21 +197,6 @@ for episode, languages in list(related_episodes.items()):
                 filetypes["audio"] = file
             elif suffix in supported_filetypes["subtitle"]:
                 filetypes["subtitle"] = file
-            elif suffix in {"ttml", "xml"}:
-                filetypes["subtitle_unsupported"] = file
-        
-        # if only unsupported subtitles are present, convert them
-        try:
-            if filetypes.get("subtitle") is None and (subtitle_file := filetypes.get("subtitle_unsupported")) is not None:
-                if not ttml_to_srt_unsupported and subtitle_file.suffix.removeprefix(".") in {"ttml", "xml"}:
-                    srt_subtitle_file = subtitle_file.with_suffix("srt")
-                    with open(srt_subtitle_file, "w", encoding="utf-8") as srt_file:
-                        converter = ttml2srt.Ttml2Srt(ttml_filepath=str(subtitle_file))
-                        converter.write2file(output=srt_file, close_fd=False)
-                    filetypes["subtitle"] = srt_subtitle_file
-        except Exception as exc:
-            print(f"{episode}:{lang}: automatic conversion of unsupported subtitles failed")
-            print(exc)
         
         # discard audio if video is present (assuming the video has an audio track) 
         if filetypes.get("audio") is not None and filetypes.get("video") is not None:
@@ -406,7 +391,7 @@ for episode, languages in related_episodes.items():
     output_file = OUTPUT_FOLDER / re.sub(**OUTPUT_RENAME_PATTERN, string=video_track.name)
     output_options = {"c:v": "copy", "c:a": "copy"}
     if counter.get_subtitle() > 0:
-        output_options["c:s"] = "srt"
+        output_options["c:s"] = "copy"  # assuming srt or vtt
         output_file = output_file.with_suffix(".mkv")
         
     ffmpeg = ffmpeg.output(output_file, output_options)
